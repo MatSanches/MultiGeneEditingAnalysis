@@ -12,6 +12,7 @@ process sam_to_bam{
 
     output:
     tuple val(sample), path("${sample}.bam"), emit: bam
+    // path("${sample}.bam"), emit: bam
 
     script:
     """

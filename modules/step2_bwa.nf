@@ -35,6 +35,7 @@ process bwa_mapping{
 
     output:
     tuple val(sample), path("${sample}.sam"), emit: sam
+    // tuple val(sample), path(merged_reads), emit: merged
 
     script:
     """

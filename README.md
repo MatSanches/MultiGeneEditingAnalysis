@@ -1,7 +1,8 @@
 # RDA_microcredential_nextflow_project
-repository to store code for the nextflow project in the context of the VIB reproducible data analysis microcredential, Q2 2026
 
-*Authors*: Matilde Sanches (VIB), Lotte Pohl (UGent)
+This repository onsists of a nextflow workflow (retake) project, developed in the context of the VIB reproducible data analysis microcredential, Q2 2026
+
+*Author*: Matilde Sanches (VIB)
 
 
 ## Concept
