@@ -7,8 +7,8 @@ This repository onsists of a nextflow workflow (retake) project, developed in th
 
 ## Concept
 
-Multiplex genome editing is a technique in which plants are transformed with CRISPR-Cas9 technology targeting multiple editing sites simultaneously.
-Because Cas9 remains active during plant growth, it is important to keep track of the mutations that actually happened in the targeted loci.
+Multiplex genome editing is a technique in which plants (or other organisms) are transformed with CRISPR-Cas9 technology targeting multiple editing sites simultaneously.
+In most cases, Cas9 remains active throghout plant growth and is even transmitted to descendency, but on the other hand, the actual editing efficiency  the it is important to keep track of the mutations that actually happened in the targeted loci.
 
 
 ## Description of the pipeline

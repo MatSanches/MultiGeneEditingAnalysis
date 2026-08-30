@@ -9,7 +9,11 @@ process smap_haplotype_window {
     publishDir "results/hapcount/test/", mode: 'copy', overwrite: true
 
     input:
-    tuple path (reference_fasta), path (borders_gff), path (mapped_bams), path (merged_fqs)
+    path (reference_fasta)
+    path (borders_gff)
+    val (mapped_bams)
+    val (merged_fqs)
+    
 
 
     output:
@@ -17,22 +21,25 @@ process smap_haplotype_window {
     path "*frequencies*.tsv", emit: smap_freqs
 
     script:
-    """   
-    smap haplotype-window \
-        ${reference_fasta} 
-        ${borders_gff} \
-        ${mapped_bams} \
-        ${merged_fqs} \
-        -f 2 -m 1
     """
-    //smap haplotype-window ${reference_fasta} ${borders_gff} ${mapped_bam} ${merged_fq} -f 2 -m 1
-    // mkdir bam_dir
-    // mkdir fastq_dir
+    mkdir bam_dir
+    cp ${mapped_bams.join(' ')} bam_dir/
 
-    // cp ${mapped_bams} bam_dir/
+    mkdir fqs_dir
+    for fq in ${merged_fqs.join(' ')}
+    do
+        sample=\$(basename "\$fq" .extendedFrags.fastq)
+        cp "\$fq" "fqs_dir/\${sample}.fastq"
+    done
 
-    // sample_name=\$(basename ${mapped_bams} .bam)
-    // cp ${merged_fqs} fastq_dir/\${sample_name}.fastq
-
+    smap haplotype-window \
+        ${reference_fasta} \
+        ${borders_gff} \
+        bam_dir \
+        fqs_dir \
+        -f 2 \
+        -c 50 \
+        -m 1
+    """
 
 }

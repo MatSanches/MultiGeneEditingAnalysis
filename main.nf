@@ -3,12 +3,8 @@
 // define parameters
 params {
     samples_path = "./data"
-
-    // ref_path = "${launchDir}/genome_reference"
     ref_path = "./genome_reference"
-
     outdir = "./results"
-
 }
 
 // include modules
@@ -34,93 +30,36 @@ workflow {
     // execute flash2
     flash2_process(rawreads_ch)
 
-    // make a channel for the files necessary for BWA to make an index
+    // make a channel for the fasta reference (either whole genome or just selected regions)
     def fastaref_ch = channel.of(file("${params.ref_path}/reference_genes.fasta"))
 
-    // make a channel for the border file of polymorphic regions necessary for SMAP
-    // def borders_ch = channel
-    //     .of(file("${params.ref_path}/borderFile.gff"))
-    // def reference_ch = channel
-    // .of(file("${params.ref_path}/newref/border10Targets.gff"))
-
-
-    // create index from reference genes
+    // create index from fasta reference
     bwa_index(fastaref_ch)
 
-    // map the output of flash2 (merged reads of each sample) to the reference
+    // map the merged reads of each sample (output of flash2) to the indexed reference
     bwa_mapping(flash2_process.out.merged
         .combine(bwa_index.out.index))
     
-    // convert the sam files to bam files
+    // convert the mapped files from sam to bam format
     sam_to_bam(bwa_mapping.out.sam)
 
-
-    // prepare pairs of flash2 and samtobam outputs per sample, to input in SMAP
-
-    // def alignedreads_ch = channel
-    //     .fromPath("${params.samples_path}/samplesinfo.csv")
-    //     .splitCsv(header: false)
-    //     .map { row ->
-    //         def sample_id = row[0]
-    //         tuple(sample_id,
-    //             flash2_process.out.merged[${sample_id}],
-    //             sam_to_bam.out.bam[${sample_id}]
-    //             )
-    //     }
-    // def all_fastqs = flash2_process.out.merged
-    //     .map { sample, fq -> fq }
-    //     .collect()
-
-    // def all_bams   = sam_to_bam.out.bam
-    //     .collect()
-
-    def fqs_bams_joined = flash2_process.out.merged
-        .join(sam_to_bam.out.bam)
+    // collect all the flash2 outputs (merged reads) and all the mapping outputs (bam files)
+    def all_fastqs = flash2_process.out.merged
+        .map { sample , fq -> fq }
         .collect()
 
-    def smap_input_ch = fqs_bams_joined.map { rows ->
-        def fastqs = rows.collect { [1] }
-        def bams   = rows.collect { [2] }
-        tuple(
-            file("${params.ref_path}/reference_genes.fasta"),
-            file("${params.ref_path}/borderFile.gff"),
-            bams,
-            fastqs
-        )
-    }
+    def all_bams   = sam_to_bam.out.bam
+        .map { sample , bam -> bam }
+        .collect()
 
-
-    // def smap_joined = flash2_process.out.merged
-    //     .join(sam_to_bam.out.bam)    
-    // def smap_input = smap_joined
-    //     .map {sample, merged_fq, bam ->
-    //         tuple(
-    //             file("${params.ref_path}/reference_genes.fasta"),
-    //             file("${params.ref_path}/borderFile.gff"),
-    //             bam,
-    //             merged_fq
-    //         )
-    //     }
-
-    
+    // create a channel for the borderFile (gff) corresponding to the reference
+    def borderfile_ch = channel.of(file("${params.ref_path}/borderFile.gff"))
+  
     // distinguish haplotypes at each polymorphic locus with SMAP
-    smap_haplotype_window(smap_input_ch)
+    smap_haplotype_window(fastaref_ch,borderfile_ch,all_bams,all_fastqs)
 
     // // define my custom script as a channel
     // def pyscript_ch = channel.of(file("HaplotypeAnalysis.py"))
-
-
-    // // define channel with all inputs necessary for the custom python script
-    // def samplesinfo_ch = channel.of(file("${params.samples_path}/samplesinfo.csv"))
-    // def python_input = smap_haplotype_window.out.smap_freqs
-    //     .combine(samplesinfo_ch)
-    //     .map { hapfile, samplesinfo ->
-    //         tuple(
-    //             hapfile,
-    //             file("${params.ref_path}/reference_genes.fasta"),
-    //             file("${params.ref_path}/borderFile.gff")
-    //         )
-    //     }
 
     // // run the custom script
     // haplotype_analysis(python_input)
