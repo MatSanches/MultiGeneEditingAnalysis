@@ -15,11 +15,12 @@ include { smap_haplotype_window } from "./modules/step4_smap"
 include { haplotype_analysis } from "./modules/step5_customscript"
 
 
-workflow {   
+workflow {
+    // create channel for the samples infosheet   
+    def samplesinfo_ch = channel.fromPath("${params.samples_path}/samplesinfo.csv")
 
     // make the paired end reads data into an input channel for the FLASH
-    def rawreads_ch = channel.fromPath("${params.samples_path}/samplesinfo.csv")
-        .splitCsv(header: false)
+    def rawreads_ch = samplesinfo_ch.splitCsv(header: false)
         .map { row ->
             def sample_id = row[0]
             tuple(sample_id,
@@ -52,16 +53,16 @@ workflow {
         .map { sample , bam -> bam }
         .collect()
 
-    // create a channel for the borderFile (gff) corresponding to the reference
+    // create a channel for the borderFile (gff) matching the reference
     def borderfile_ch = channel.of(file("${params.ref_path}/borderFile.gff"))
   
     // distinguish haplotypes at each polymorphic locus with SMAP
     smap_haplotype_window(fastaref_ch,borderfile_ch,all_bams,all_fastqs)
 
-    // // define my custom script as a channel
-    // def pyscript_ch = channel.of(file("HaplotypeAnalysis.py"))
+    // define the python script as a channel
+    def pyscript_ch = channel.of(file("${projectDir}/bin/HaplotypeAnalysis.py"))
 
-    // // run the custom script
-    // haplotype_analysis(python_input)
+    // run the custom script
+    haplotype_analysis(smap_haplotype_window.out.smap_freqs,fastaref_ch,borderfile_ch,samplesinfo_ch,pyscript_ch)
 
  }

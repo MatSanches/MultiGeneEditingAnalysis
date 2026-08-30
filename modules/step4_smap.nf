@@ -15,10 +15,10 @@ process smap_haplotype_window {
     val (merged_fqs)
     
 
-
     output:
     path "*counts*.tsv", emit: smap_counts
     path "*frequencies*.tsv", emit: smap_freqs
+    
 
     script:
     """

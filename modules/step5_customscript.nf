@@ -1,7 +1,8 @@
 #!/usr/bin/env nextflow
 
 process haplotype_analysis {
-    container "python:3.10"
+
+    container 'jupyter/scipy-notebook:latest'
 
     publishDir "results/analysis/test/", mode: 'copy', overwrite: true
 
@@ -10,15 +11,17 @@ process haplotype_analysis {
     path(reference)
     path(borders)
     path(samplesinfo)
-    // path(pyscript)
+    path(pyscript)
 
     output:
     path "plots/*"
 
     script:
     """
+    pip install biopython
+
     mkdir -p plots
-    HaplotypeAnalysis.py \
+    python3 HaplotypeAnalysis.py \
         --haplotypes $haplo_file \
         --reference $reference \
         --borders $borders \

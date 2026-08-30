@@ -7,13 +7,15 @@ This repository onsists of a nextflow workflow (retake) project, developed in th
 
 ## Concept
 
-Multiplex genome editing is a technique in which plants (or other organisms) are transformed with CRISPR-Cas9 technology targeting multiple editing sites simultaneously.
-In most cases, Cas9 remains active throghout plant growth and is even transmitted to descendency, but on the other hand, the actual editing efficiency  the it is important to keep track of the mutations that actually happened in the targeted loci.
+Multiplex genome editing is a technique in which plants (or other organisms) are transformed with CRISPR-Cas technology targeting multiple editing sites simultaneously.
+In most cases, Cas remains active throghout plant growth and is even transmitted to descendency. On the other hand, the actual editing efficiency is often not high (depending on factors such as chromatin accessibility on the target loci, specificity of the cloned gRNAs, editing power of the specific Cas protein used, etc.)
+Therefore, the actual editing frequency at the targeted loci is rarely the same between individuals, and can even vary between different tissues of the same individual and throughout its lifespan.
+If these edited plants are to be used for any purpose (research, breeding, etc.), it is essential to know their editing state at a given tissue and timepoint. Samples are collected, their DNA extracted, the regions to observe (i.e. the editing targets) are amplified (PCR using specific primers) and sequenced, the final product (and main input for this pipeline) being fastq files, one pair (paired-end reads) per sample.
 
 
 ## Description of the pipeline
 
-The pipeline of this microcredential nextflow project uses DNA-reads of maize (fastq-files) as raw input data.
+This pipeline uses DNA-reads (fastq) files as raw input data.
 The goal is to identify the frequency of mutations at 10 loci (10 of the CRISPR targets), in multiple samples at the same tima
 The main result after running the pipeline is a plot per sample that shows the edit rate and edit type (SNPs and INDELs) at each locus. 
 

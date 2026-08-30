@@ -7,13 +7,21 @@ import pandas as pd
 from Bio import SeqIO
 import itertools
 import matplotlib.pyplot as plt
+import argparse
 
 
 ### Input parameters ###
-haplotype_file = "results/smap/haplotype_frequencies_test.tsv"
-genes = "genome_reference/originalref/reference_genes.fasta"
-anchors = "genome_reference/originalref/borderFile.gff"
-samplesinfo = "samplesinfo.csv"
+parser = argparse.ArgumentParser()
+parser.add_argument("--haplotypes", required=True)
+parser.add_argument("--reference", required=True)
+parser.add_argument("--borders", required=True)
+parser.add_argument("--samples", required=True)
+
+args = parser.parse_args()
+haplotype_file = args.haplotypes
+genes = args.reference
+anchors = args.borders
+samplesinfo = args.samples
 
 
 ### FUNCTIONS ###
@@ -66,7 +74,7 @@ def edit_to_category(edit):
 ### MAIN SCRIPT ###
 
 # Read haplotypes file
-haplotypes = pd.read_csv(haplotype_file, sep=" ")
+haplotypes = pd.read_csv(haplotype_file, sep="\t")
 
 # Wide -> long format
 haplotypes_long = haplotypes.melt(
@@ -143,8 +151,6 @@ for sample, subdf in haplotypes_edited.groupby("sample"):
     ax.set_ylim(0, 100)
 
     plt.tight_layout()
-
-    filename = f"{sample}.png"
-    plt.savefig(filename, dpi=300)
+    plt.savefig(f'{sample}.png', dpi=300)
     plt.show()
     plt.close()
