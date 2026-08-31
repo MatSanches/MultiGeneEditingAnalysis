@@ -36,6 +36,11 @@ A diagram showing the complete workflow can be found in this folder as 'DAG-prev
 
 ## How to run this pipeline
 
+First of all, clone this repository to the desired location on your machine using for example the command:
+```bash
+git clone https://github.com/MatSanches/MultiGeneEditingAnalysis.git
+```
+
 ### Necessary inputs
 **To be placed under data/ :**
 * Zipped fastq DNA-reads files (paired ends, named as sampleX_1.fq.gz and sampleX_2.fq.gz)
