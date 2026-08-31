@@ -26,7 +26,7 @@ workflow {
     flash2_merging(rawreads_ch)
 
     // make a channel for the fasta reference (either whole genome or just selected regions)
-    def fastaref_ch = channel.of(file("${params.ref_path}/reference_genes.fasta"))
+    def fastaref_ch = channel.of(file("${params.ref_path}/*.fasta"))
 
     // create index from fasta reference
     bwa_index(fastaref_ch)
@@ -48,16 +48,13 @@ workflow {
         .collect()
 
     // create a channel for the borderFile (gff) matching the reference
-    def borderfile_ch = channel.of(file("${params.ref_path}/borderFile.gff"))
+    def borderfile_ch = channel.of(file("${params.ref_path}/*.gff"))
   
     // distinguish haplotypes at each polymorphic locus with SMAP
     smap_haplotype_window(fastaref_ch,borderfile_ch,all_bams,all_fastqs)
 
-    // define the python script as a channel
-    def pyscript_ch = channel.of(file("${projectDir}/bin/HaplotypeAnalysis.py"))
-
     // run the custom script
-    haplotype_analysis(smap_haplotype_window.out.smap_freqs,fastaref_ch,borderfile_ch,samplesinfo_ch,pyscript_ch)
+    haplotype_analysis(smap_haplotype_window.out.smap_freqs,fastaref_ch,borderfile_ch,samplesinfo_ch)
 
 
     workflow.onComplete = {

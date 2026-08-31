@@ -37,8 +37,7 @@ process smap_haplotype_window {
         bam_dir \
         fqs_dir \
         -f 2 \
-        -c 50 \
-        -m 1
+        -c 50
     """
 
 }

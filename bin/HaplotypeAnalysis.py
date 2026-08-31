@@ -123,6 +123,8 @@ all_loci = sorted(haplotypes_final["Locus"].dropna().unique())
 ## Plot per sample
 for sample, subdf in haplotypes_edited.groupby("sample"):
 
+    ident = subdf["identifier"].iloc[0]
+
     pivot = (subdf.groupby(["Locus", "Category"])["Freq"]
         .sum()
         .unstack(fill_value=0))
@@ -137,7 +139,7 @@ for sample, subdf in haplotypes_edited.groupby("sample"):
         stacked=True,
         figsize=(10, 6))
 
-    ax.set_title("identifier")
+    ax.set_title(str(ident))
     ax.set_xlabel("Locus")
     ax.set_ylabel("Freq")
     ax.set_xticklabels(ax.get_xticklabels(), rotation=90)

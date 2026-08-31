@@ -11,7 +11,6 @@ process haplotype_analysis {
     path(reference)
     path(borders)
     path(samplesinfo)
-    path(pyscript)
 
     output:
     path "plots/*"
@@ -20,7 +19,7 @@ process haplotype_analysis {
     script:
     """
     pip install biopython
-    python3 HaplotypeAnalysis.py \
+    python3 ${launchDir}/bin/HaplotypeAnalysis.py \
         --haplotypes $haplo_file \
         --reference $reference \
         --borders $borders \
