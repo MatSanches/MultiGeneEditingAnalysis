@@ -83,55 +83,49 @@ haplotypes_long = haplotypes.melt(
     value_name="Freq"
 )
 
-# Add reference info
+# Add reference
 references = get_ref_dict(genes, anchors)
 
 haplotypes_long["Edit"] = haplotypes_long.apply(
     lambda x: get_len_diff(x["Locus"], x["Haplotypes"], references),
-    axis=1
-)
-
+    axis=1)
 haplotypes_long["Category"] = haplotypes_long["Edit"].apply(edit_to_category)
 
-# Add sample metadata
+# Merge with sample info
 info = pd.read_csv(
     samplesinfo,
-    sep=",",
-    names=["sample", "Species", "PlantID", "Tissue"]
-)
+    sep=",", header=0)
+haplotypes_final = info.merge(haplotypes_long, on="sample")
 
-haplotypes_long = haplotypes_long.merge(info, on="sample")
-
-# Remove NaN rows
-haplotypes_final = haplotypes_long.dropna(axis=0)
-
-# Ensure numeric
+# Remove NaN rows and ensure Freq is numeric
+haplotypes_final = haplotypes_final.dropna(axis=0)
 haplotypes_final["Freq"] = pd.to_numeric(haplotypes_final["Freq"], errors="coerce")
 
-# Remove REF category
+
+# Export final haplotype file
+haplotypes_final.to_csv('AllSamples_haplotypes.tsv', sep='\t')
+
+
+# Make plots
+## Remove REF category
 haplotypes_edited = haplotypes_final[
-    haplotypes_final["Category"] != "REF"
-].copy()
+    haplotypes_final["Category"] != "REF"].copy()
 
-# Create unique sample ID
-haplotypes_edited["sample"] = (
-    haplotypes_edited["PlantID"].astype(str) + "_" +
-    haplotypes_edited["Tissue"].astype(str)
-)
+## Create unique sample identifier by concatenating samples info
+haplotypes_edited["identifier"] = (
+    haplotypes_edited[info.columns[1:]]
+    .astype(str)
+    .agg(" ".join, axis=1))
 
-# Get all loci
+## Get all loci
 all_loci = sorted(haplotypes_final["Locus"].dropna().unique())
 
-
-### Plot per sample ###
+## Plot per sample
 for sample, subdf in haplotypes_edited.groupby("sample"):
 
-    pivot = (
-        subdf
-        .groupby(["Locus", "Category"])["Freq"]
+    pivot = (subdf.groupby(["Locus", "Category"])["Freq"]
         .sum()
-        .unstack(fill_value=0)
-    )
+        .unstack(fill_value=0))
 
     pivot = pivot.reindex(all_loci, fill_value=0)
 
@@ -141,10 +135,9 @@ for sample, subdf in haplotypes_edited.groupby("sample"):
     ax = pivot.plot(
         kind="bar",
         stacked=True,
-        figsize=(10, 6)
-    )
+        figsize=(10, 6))
 
-    ax.set_title(sample)
+    ax.set_title("identifier")
     ax.set_xlabel("Locus")
     ax.set_ylabel("Freq")
     ax.set_xticklabels(ax.get_xticklabels(), rotation=90)

@@ -2,11 +2,10 @@
 
 
 process smap_haplotype_window {
-    // container 'docker://ilvo/smap:4.6.3'
-    container 'quay.io/biocontainers/ngs-smap:5.1.0--pyhdfd78af_0'
-    // container 'smap_hapwindow.sif'
 
-    publishDir "results/hapcount/test/", mode: 'copy', overwrite: true
+    container 'quay.io/biocontainers/ngs-smap:5.1.0--pyhdfd78af_0'
+
+    publishDir "${params.outdir}/3-hapcounts/", mode: 'copy', overwrite: true
 
     input:
     path (reference_fasta)

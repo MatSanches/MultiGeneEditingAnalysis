@@ -2,9 +2,9 @@
 
 process haplotype_analysis {
 
-    container 'jupyter/scipy-notebook:latest'
+    container 'quay.io/jupyter/scipy-notebook:latest'
 
-    publishDir "results/analysis/test/", mode: 'copy', overwrite: true
+    publishDir "${params.outdir}/4-analysis/", mode: 'copy', overwrite: true
 
     input:
     path(haplo_file)
@@ -15,17 +15,19 @@ process haplotype_analysis {
 
     output:
     path "plots/*"
+    path "AllSamples_haplotypes.tsv"
 
     script:
     """
     pip install biopython
-
-    mkdir -p plots
     python3 HaplotypeAnalysis.py \
         --haplotypes $haplo_file \
         --reference $reference \
         --borders $borders \
         --samples $samplesinfo
+
+    mkdir -p plots
     mv *.png plots/ || true
     """
+
 }
