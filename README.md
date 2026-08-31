@@ -65,7 +65,7 @@ Two container runtimes can be used:
 **Make sure to have at least one of the above installed and running (DockerDesktop must be opened, for instance).**
 
 
-On a local machine with Nextflow installed (https://docs.seqera.io/nextflow/install) and all the required inputs correctly placed in the /data and /genome_reference directories, the command to run the pipeline is:
+On a local machine with Nextflow installed (https://docs.seqera.io/nextflow/install) and all the required inputs correctly placed in the /data and /genome_reference directories, the command to run the pipeline (from inside the cloned repository) is:
 ```bash
 nextflow run main.nf -profile <docker/apptainer>  ##(chose your preferred container runtime)
 ```
